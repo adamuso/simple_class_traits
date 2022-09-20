@@ -1,0 +1,3 @@
+# Simple Class Traits
+
+## Work in progres...
