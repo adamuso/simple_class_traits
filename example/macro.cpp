@@ -8,7 +8,7 @@ class Test
 public:
     typedef TraitRef<Test> ref;
 
-    virtual int get_a() = 0;
+    virtual int get_a() const = 0;
     virtual void set_a(int value) = 0;
 };
 
@@ -24,25 +24,16 @@ public:
     int b = 30;
 };
 
-// What to do with const?
-trait_impl(Test, const X)
+class Z
 {
 public:
-    int get_a()
-    {
-        return self->a;
-    }
-
-    void set_a(int value)
-    {
-        // self->a = value;
-    }
+    int c = 40;
 };
 
 trait_impl(Test, X)
 {
 public:
-    int get_a()
+    int get_a() const
     {
         return self->a;
     }
@@ -53,10 +44,12 @@ public:
     }
 };
 
-trait_impl(Test, Y)
+// Implementing a trait without a macro
+template<>
+class TraitImpl<Test, Y> : public Test::ref::container<Y>
 {
 public:
-    int get_a()
+    int get_a() const
     {
         return self->b;
     }
@@ -67,7 +60,8 @@ public:
     }
 };
 
-int foo(Test::ref t)
+
+int foo(const Test::ref t)
 {
     return t->get_a();
 }
@@ -76,6 +70,9 @@ int main()
 {
     X x;
     Y y;
+    Z z;
+
+    // foo(z); - not working, Z does not implement a trait Test
 
     const X& cx = x;
     foo(cx);

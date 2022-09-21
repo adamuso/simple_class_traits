@@ -1,9 +1,9 @@
 #pragma once
 
-#define trait_impl(T, V) template<> class TraitImpl<T, V> : public TraitImplContainer<T, V>
+#define trait_impl(T, V) template<> class TraitImpl<T, V> : public T::ref::container<V>
 
 template <typename T>
-struct RmConst 
+struct RmConst
 {
     typedef T type;
 };
@@ -15,13 +15,19 @@ struct RmConst<const T>
 };
 
 template <typename T, typename V>
-class TraitImpl;
-
-template <typename T, typename V>
 class TraitImplContainer : public T
 {
 public:
     V* self;
+};
+
+template <typename T, typename V>
+class TraitImpl;
+
+template <typename T, typename V>
+class TraitImpl<T, const V> : public TraitImpl<T, V>
+{
+
 };
 
 template<typename T>
@@ -32,17 +38,10 @@ public:
     static TraitImpl<T, V> create(V& v)
     {
         TraitImpl<T, V> ti;
-        ti.self = &v;
-        // ti.self = const_cast<typename RmConst<V>::type*>(&v);
+        ti.self = const_cast<typename RmConst<V>::type*>(&v);
         return ti;
     }
 };
-
-// template<typename T, typename V>
-// class TraitImpl<T, const V> : public TraitImpl<T, V>
-// {
-
-// };
 
 
 template <typename T>
@@ -51,6 +50,9 @@ class TraitRef
     // TraitRef is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer
 public:
     char ptr[sizeof(TraitImpl<T, void>)];
+
+    template <typename V>
+    using container = TraitImplContainer<T, V>;
 
     template <typename V, typename = TraitImpl<T, V>>
     TraitRef(V& v)
@@ -61,7 +63,7 @@ public:
         auto ti = TraitImpl<T, void>::template create<V>(v);
         void** src_fat_ptr = reinterpret_cast<void**>(&ti);
         void** dst_fat_ptr = reinterpret_cast<void**>(&ptr[0]);
-    
+
         for (int i = 0; i < sizeof(ti) / sizeof(void*); i++)
         {
             dst_fat_ptr[i] = src_fat_ptr[i];
@@ -69,4 +71,5 @@ public:
     };
 
     T* operator->() { return reinterpret_cast<T*>(ptr); }
+    const T* operator->() const { return reinterpret_cast<const T*>(ptr); }
 };
