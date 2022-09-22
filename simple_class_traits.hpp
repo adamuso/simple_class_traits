@@ -4,35 +4,16 @@
 #define trait_impl_ext(T, D) template<typename V> class TraitImpl<T, V, typename TraitImpl<D, V>::type> : public T::ref::container<V>
 
 template <typename T>
-struct RmConst
-{
-    typedef T type;
-};
-
-template <typename T>
-struct RmConst<const T>
-{
-    typedef T type;
-};
+class TraitRef;
 
 template <typename T, typename V>
 class TraitImplContainer : public T
 {
-public:
+public: 
     typedef void type;
 
     V* self;
 };
-
-template <typename T>
-class TraitImplContainer<T, void> : public T
-{
-public:
-    void* self;
-};
-
-template <typename T>
-class TraitRef;
 
 template <typename T, typename V>
 class TraitImplContainer<T, TraitRef<V>> : public T
@@ -44,50 +25,44 @@ public:
 template <typename T, typename V, typename = void>
 class TraitImpl;
 
+// If a template for V is defined then auto implement template for const V
+// by derriving from its non const template
 template <typename T, typename V>
 class TraitImpl<T, const V> : public TraitImpl<T, V>
 {
 
 };
 
+// Trait T for TraitRef<T> should always be implemented  
 template<typename T> 
 class TraitImpl<T, TraitRef<T>> : public TraitImplContainer<T, T>
 {
 
 };
 
-template<typename T>
-class TraitImpl<T, void> : public TraitImplContainer<T, void>
-{
-public:
-    template<typename V>
-    static TraitImpl<T, V> create(V& v)
-    {
-        TraitImpl<T, V> ti;
-        ti.self = const_cast<typename RmConst<V>::type*>(&v);
-        return ti;
-    }
-
-    template<typename V>
-    static TraitImpl<T, TraitRef<V>> create(TraitRef<V>& v)
-    {
-        TraitImpl<T, TraitRef<V>> ti;
-        ti.self = const_cast<typename RmConst<V>::type*>(reinterpret_cast<V*>(&v));
-        return ti;
-    }
-};
-
-
-struct TraitRefData
-{
-    void* vtable;
-    void* data;
-};
-
 template <typename T>
 class TraitRef
 {
 private:
+    struct TraitRefData
+    {
+        void* vtable;
+        void* data;
+    };
+
+    template <typename V>
+    constexpr static void* extract_v_table()
+    {
+        V v;
+        return reinterpret_cast<void**>(&v)[0];
+    }
+
+    template <typename V>
+    constexpr static void* extract_v_table(V& v)
+    {
+        return reinterpret_cast<void**>(&v)[0];
+    }
+
     TraitRefData ptr;
 
     // TraitRef is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer
@@ -97,38 +72,26 @@ public:
 
     TraitRef(T& v)
     {
-        static_assert(sizeof(TraitImpl<T, void>) % sizeof(void*) == 0);
-
-        void** src_fat_ptr = reinterpret_cast<void**>(&v);
-
-        ptr.vtable = src_fat_ptr[0];
-        ptr.data = src_fat_ptr[1];
+        ptr.vtable = extract_v_table(v);
+        ptr.data = &v;
     };
 
     template <typename V, typename = TraitImpl<T, V>>
     TraitRef(V& v)
     {
-        static_assert(sizeof(TraitImpl<T, void>) == sizeof(TraitImpl<T, V>));
-        static_assert(sizeof(TraitImpl<T, void>) % sizeof(void*) == 0);
+        static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
 
-        auto ti = TraitImpl<T, void>::create(v);
-        void** src_fat_ptr = reinterpret_cast<void**>(&ti);
-       
-        ptr.vtable = src_fat_ptr[0];
-        ptr.data = src_fat_ptr[1];
+        ptr.vtable = extract_v_table<TraitImpl<T, V>>();
+        ptr.data = &v;
     };
 
     template <typename V, typename = TraitImpl<T, V>>
     TraitRef(V&& v)
     {
-        static_assert(sizeof(TraitImpl<T, void>) == sizeof(TraitImpl<T, V>));
-        static_assert(sizeof(TraitImpl<T, void>) % sizeof(void*) == 0);
+        static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
 
-        auto ti = TraitImpl<T, void>::create(v);
-        void** src_fat_ptr = reinterpret_cast<void**>(&ti);
-        
-        ptr.vtable = src_fat_ptr[0];
-        ptr.data = src_fat_ptr[1];
+        ptr.vtable = extract_v_table<TraitImpl<T, V>>();
+        ptr.data = &v;
     };
 
     T* operator->() { return reinterpret_cast<T*>(&ptr); }
