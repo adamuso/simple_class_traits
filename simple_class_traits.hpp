@@ -40,6 +40,26 @@ class TraitImpl<T, TraitRef<T>> : public TraitImplContainer<T, T>
 
 };
 
+class TraitRefHelper
+{
+public:
+    template <typename V>
+    static void* extract_v_table()
+    {
+        V v;
+        return reinterpret_cast<void**>(&v)[0];
+    }
+
+    template <typename V>
+    static void* extract_v_table(V& v)
+    {
+        return reinterpret_cast<void**>(&v)[0];
+    }
+};
+
+template <typename T>
+class TraitSharedRef;
+
 template <typename T>
 class TraitRef
 {
@@ -50,29 +70,38 @@ private:
         void* data;
     };
 
-    template <typename V>
-    constexpr static void* extract_v_table()
-    {
-        V v;
-        return reinterpret_cast<void**>(&v)[0];
-    }
-
-    template <typename V>
-    constexpr static void* extract_v_table(V& v)
-    {
-        return reinterpret_cast<void**>(&v)[0];
-    }
-
     TraitRefData ptr;
 
-    // TraitRef is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer
+    TraitRef(void* vtable, void* data)
+        : ptr { vtable, data }
+    {
+    };
+
+    // TraitRef is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,
+    // this class tries to mimic c++ references behavior 
 public:
     template <typename V>
     using container = TraitImplContainer<T, V>;
+    using shared = TraitSharedRef<T>;
+
+    TraitRef() = delete;
+
+    TraitRef(TraitRef& o)
+        : ptr(o.ptr)
+    {
+
+    };
+    
+    TraitRef(TraitRef&& o)
+        : ptr(o.ptr)
+    {
+        o.ptr.vtable = nullptr;
+        o.ptr.data = nullptr;
+    }
 
     TraitRef(T& v)
     {
-        ptr.vtable = extract_v_table(v);
+        ptr.vtable = TraitRefHelper::extract_v_table(v);
         ptr.data = &v;
     };
 
@@ -81,7 +110,7 @@ public:
     {
         static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
 
-        ptr.vtable = extract_v_table<TraitImpl<T, V>>();
+        ptr.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
         ptr.data = &v;
     };
 
@@ -90,10 +119,29 @@ public:
     {
         static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
 
-        ptr.vtable = extract_v_table<TraitImpl<T, V>>();
+        ptr.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
         ptr.data = &v;
     };
 
+    template <typename V, typename = TraitImpl<T, V>>
+    TraitRef(V* v)
+    {
+        static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
+
+        ptr.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
+        ptr.data = v;
+    };
+
+    TraitRef& operator=(const TraitRef&) = delete;
+    TraitRef& operator=(TraitRef&& o) = delete;
+
     T* operator->() { return reinterpret_cast<T*>(&ptr); }
     const T* operator->() const { return reinterpret_cast<const T*>(&ptr); }
+    T& operator *() { return *reinterpret_cast<T*>(&ptr); }
+    const T& operator *() const { *reinterpret_cast<const T*>(&ptr); }
+    operator T&() { return *reinterpret_cast<T*>(&ptr); }
+    operator const T& () const { *reinterpret_cast<const T*>(&ptr); }
+
+
+    friend TraitSharedRef<T>;
 };
