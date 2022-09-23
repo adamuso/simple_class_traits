@@ -61,87 +61,105 @@ template <typename T>
 class TraitSharedRef;
 
 template <typename T>
-class TraitRef
+class TraitPtr
 {
-private:
+    // TraitPtr is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,
+protected:
     struct TraitRefData
     {
         void* vtable;
         void* data;
     };
 
-    TraitRefData ptr;
+    TraitRefData d;
 
+    TraitPtr(void* vtable, void* data)
+        : d { vtable, data }
+    {
+    };
+public:
+    TraitPtr() = delete;
+    TraitPtr(TraitPtr& o) = default;
+    TraitPtr(TraitPtr&& o)
+        : d(o.d)
+    {
+        o.d.vtable = nullptr;
+        o.d.data = nullptr;
+    }
+
+    template <typename V, typename = TraitImpl<T, V>>
+    TraitPtr(V* v)
+    {
+        static_assert(sizeof(TraitPtr) == sizeof(TraitImpl<T, V>));
+
+        d.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
+        d.data = v;
+    };
+
+    TraitPtr& operator=(const TraitPtr&) = default;
+    TraitPtr& operator=(TraitPtr&& o)
+    {
+        d = o.d;
+
+        o.d.vtable = nullptr;
+        o.d.data = nullptr;
+
+        return *this;
+    };
+
+    T* operator->() { return reinterpret_cast<T*>(&d); }
+    const T* operator->() const { return reinterpret_cast<const T*>(&d); }
+    T& operator *() { return *reinterpret_cast<T*>(&d); }
+    const T& operator *() const { *reinterpret_cast<const T*>(&d); }
+};
+
+template <typename T>
+class TraitRef : protected TraitPtr<T>
+{
+    // TraitRef tries to mimic c++ references behavior 
+protected:
     TraitRef(void* vtable, void* data)
-        : ptr { vtable, data }
+        : TraitPtr<T>(vtable, data)
     {
     };
 
-    // TraitRef is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,
-    // this class tries to mimic c++ references behavior 
 public:
     template <typename V>
     using container = TraitImplContainer<T, V>;
     using shared = TraitSharedRef<T>;
+    using ptr = TraitPtr<T>;
 
     TraitRef() = delete;
-
-    TraitRef(TraitRef& o)
-        : ptr(o.ptr)
-    {
-
-    };
-    
-    TraitRef(TraitRef&& o)
-        : ptr(o.ptr)
-    {
-        o.ptr.vtable = nullptr;
-        o.ptr.data = nullptr;
-    }
+    TraitRef(TraitRef& o) = default;
+    TraitRef(TraitRef&& o) = default;
 
     TraitRef(T& v)
+        : TraitPtr<T>(TraitRefHelper::extract_v_table(v), &v)
     {
-        ptr.vtable = TraitRefHelper::extract_v_table(v);
-        ptr.data = &v;
     };
 
     template <typename V, typename = TraitImpl<T, V>>
     TraitRef(V& v)
+        : TraitPtr<T>(std::addressof(v))
     {
-        static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
-
-        ptr.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
-        ptr.data = &v;
     };
 
     template <typename V, typename = TraitImpl<T, V>>
     TraitRef(V&& v)
+        : TraitPtr<T>(std::addressof(v))
     {
-        static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
-
-        ptr.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
-        ptr.data = &v;
-    };
-
-    template <typename V, typename = TraitImpl<T, V>>
-    TraitRef(V* v)
-    {
-        static_assert(sizeof(TraitRef) == sizeof(TraitImpl<T, V>));
-
-        ptr.vtable = TraitRefHelper::extract_v_table<TraitImpl<T, V>>();
-        ptr.data = v;
     };
 
     TraitRef& operator=(const TraitRef&) = delete;
     TraitRef& operator=(TraitRef&& o) = delete;
 
-    T* operator->() { return reinterpret_cast<T*>(&ptr); }
-    const T* operator->() const { return reinterpret_cast<const T*>(&ptr); }
-    T& operator *() { return *reinterpret_cast<T*>(&ptr); }
-    const T& operator *() const { *reinterpret_cast<const T*>(&ptr); }
-    operator T&() { return *reinterpret_cast<T*>(&ptr); }
-    operator const T& () const { *reinterpret_cast<const T*>(&ptr); }
+    using TraitPtr<T>::operator->;
+    using TraitPtr<T>::operator*;
 
+    operator T&() { return *reinterpret_cast<T*>(&this->d); }
+    operator const T& () const { *reinterpret_cast<const T*>(&this->d); }
+
+    TraitPtr<T> operator&() { return *this; }
 
     friend TraitSharedRef<T>;
 };

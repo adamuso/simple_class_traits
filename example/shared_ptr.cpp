@@ -44,9 +44,8 @@ DebugPrint::ref::shared create_a()
 int main()
 {
     DebugPrint::ref::shared c = create_a();
-    DebugPrint::ref cr = *c;
 
-    debug_print(cr);
+    debug_print(*c);
 
     return 0;
 }
