@@ -1,7 +1,9 @@
 #pragma once
 
+#define trait_impl_expand(...) __VA_ARGS__
 #define trait_impl(T, V) template<> class TraitImpl<T, V> : public T::ref::container<V>
 #define trait_impl_ext(T, D) template<typename V> class TraitImpl<T, V, typename TraitImpl<D, V>::type> : public T::ref::container<V>
+#define trait_impl_gen(TP, T, ...) template<trait_impl_expand TP> class TraitImpl<T, __VA_ARGS__> : public T::ref::container<__VA_ARGS__>
 
 template <typename T>
 class TraitRef;

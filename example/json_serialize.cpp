@@ -90,9 +90,7 @@ public:
     }
 };
 
-
-template<typename V>
-class TraitImpl<JsonSerialize, std::unordered_map<std::string, V>> : public JsonSerialize::ref::container<std::unordered_map<std::string, V>>
+trait_impl_gen((typename V), JsonSerialize, std::unordered_map<std::string, V>)
 {
 public:
     std::string to_string() const
