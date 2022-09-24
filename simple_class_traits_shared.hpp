@@ -50,7 +50,7 @@ namespace trait {
 
         T* operator->() { return reinterpret_cast<T*>(&ptr); }
         const T* operator->() const { return reinterpret_cast<const T*>(&ptr); }
-        ref<T> operator *() { return ref<T>(ptr.vtable, ptr.data.get()); }
-        const ref<T> operator *() const { return ref<T>(ptr.vtable, ptr.data.get()); }
+        ref<T> operator *() { return *unsafe_create_ptr<T>(ptr.vtable, ptr.data.get()); }
+        const ref<T> operator *() const { return *unsafe_create_ptr<T>(ptr.vtable, ptr.data.get()); }
     };
 }

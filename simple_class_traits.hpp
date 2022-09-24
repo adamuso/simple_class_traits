@@ -66,6 +66,15 @@ namespace trait
     template <typename T, typename Tag = typename ptr_helper::extract_tag<T>::type>
     class ref;
 
+    template <typename T, typename Tag = typename ptr_helper::extract_tag<T>::type>
+    class ptr;
+
+    template <typename T, typename Tag = typename ptr_helper::extract_tag<T>::type>
+    ptr<T, Tag> unsafe_create_ptr(void* vtable, void* data)
+    {
+        return ptr<T, Tag>(vtable, data);
+    }
+
     template <typename T, typename V>
     class container : public T
     {
@@ -99,10 +108,7 @@ namespace trait
 
     };
 
-    template <typename T>
-    class shared_ptr;
-
-    template <typename T, typename Tag = typename ptr_helper::extract_tag<T>::type>
+    template <typename T, typename Tag>
     class ptr
     {
         // trait::ptr is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,
@@ -160,8 +166,10 @@ namespace trait
 
         T* operator->() { return reinterpret_cast<T*>(&d); }
         const T* operator->() const { return reinterpret_cast<const T*>(&d); }
-        T& operator *() { return *reinterpret_cast<T*>(&d); }
-        const T& operator *() const { *reinterpret_cast<const T*>(&d); }
+        ref<T> operator *() { return ref<T>(d.vtable, d.data); }
+        const ref<T> operator *() const { return ref<T>(d.vtable, d.data); }
+
+        template <typename _T, typename _Tag> friend ptr<_T, _Tag> unsafe_create_ptr(void* vtable, void* data);
     };
 
     template <typename T, typename Tag>
@@ -222,14 +230,13 @@ namespace trait
         ref& operator=(ref&& o) = delete;
 
         using ptr<T, Tag>::operator->;
-        using ptr<T, Tag>::operator*;
 
         operator T&() { return *reinterpret_cast<T*>(&this->d); }
         operator const T& () const { *reinterpret_cast<const T*>(&this->d); }
 
         ptr<T, Tag> operator&() { return *this; }
 
-        friend class shared_ptr<T>;
         template<typename, typename> friend class ref;
+        template<typename, typename> friend class ptr;
     };
 }
