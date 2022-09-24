@@ -10,7 +10,8 @@ public:
     class outputs
     {
     public:
-        typedef TraitRef<outputs, Add> ref;
+        typedef Add tag;
+        typedef TraitRef<outputs> ref;
 
         virtual Output add(const T& other) const = 0;
     };

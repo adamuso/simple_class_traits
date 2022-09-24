@@ -5,7 +5,61 @@
 #define trait_impl_ext(T, D) template<typename V> class TraitImpl<T, V, typename TraitImpl<D, V>::type> : public T::ref::container<V>
 #define trait_impl_gen(TP, T, ...) template<trait_impl_expand TP> class TraitImpl<T, __VA_ARGS__> : public T::ref::container<__VA_ARGS__>
 
-template <typename T, typename Tag = T>
+template <typename T, typename V, typename = void>
+class TraitImpl;
+
+class TraitRefHelper
+{
+public:
+    template<typename T, typename = void>
+    struct SizeOfTraitImpl
+    {
+        constexpr static int value = -1; 
+    };
+
+    template<typename T, typename V>
+    struct SizeOfTraitImpl<TraitImpl<T, V>, typename TraitImpl<T, V>::type>
+    {
+        constexpr static int value = sizeof(TraitImpl<T, V>); 
+    };
+
+    template<class T, class R = void>  
+    class TraitExtractTagEnable 
+    { 
+    public:
+        typedef R type; 
+    };
+
+    template <typename T, typename = void>
+    class TraitExtractTag
+    {
+    public:
+        typedef T tag;
+    };
+
+    template <typename T>
+    class TraitExtractTag<T, typename TraitExtractTagEnable<typename T::tag>::type>
+    {
+    public:
+        typedef typename T::tag tag;
+    };
+
+
+    template <typename V>
+    static void* extract_v_table()
+    {
+        V v;
+        return reinterpret_cast<void**>(&v)[0];
+    }
+
+    template <typename V>
+    static void* extract_v_table(V& v)
+    {
+        return reinterpret_cast<void**>(&v)[0];
+    }
+};
+
+template <typename T, typename Tag = typename TraitRefHelper::TraitExtractTag<T>::tag>
 class TraitRef;
 
 template <typename T, typename V>
@@ -24,9 +78,6 @@ public:
     V* self;
 };
 
-template <typename T, typename V, typename = void>
-class TraitImpl;
-
 // If a template for V is defined then auto implement template for const V
 // by derriving from its non const template
 template <typename T, typename V>
@@ -42,39 +93,10 @@ class TraitImpl<T, TraitRef<T>> : public TraitImplContainer<T, T>
 
 };
 
-class TraitRefHelper
-{
-public:
-    template<typename T, typename = void>
-    struct SizeOfTraitImpl
-    {
-        constexpr static int value = -1; 
-    };
-
-    template<typename T, typename V>
-    struct SizeOfTraitImpl<TraitImpl<T, V>, typename TraitImpl<T, V>::type>
-    {
-        constexpr static int value = sizeof(TraitImpl<T, V>); 
-    };
-
-    template <typename V>
-    static void* extract_v_table()
-    {
-        V v;
-        return reinterpret_cast<void**>(&v)[0];
-    }
-
-    template <typename V>
-    static void* extract_v_table(V& v)
-    {
-        return reinterpret_cast<void**>(&v)[0];
-    }
-};
-
 template <typename T>
 class TraitSharedRef;
 
-template <typename T, typename Tag = T>
+template <typename T, typename Tag = typename TraitRefHelper::TraitExtractTag<T>::tag>
 class TraitPtr
 {
     // TraitPtr is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,

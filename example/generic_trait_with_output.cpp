@@ -6,7 +6,8 @@ template<typename T, typename Output = void>
 class Add
 {
 public:
-    typedef TraitRef<Add, Add<T, void>> ref;
+    typedef Add<T, void> tag;
+    typedef TraitRef<Add> ref;
 
     virtual Output add(const T& other) const = 0;
 };
