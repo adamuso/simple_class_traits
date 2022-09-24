@@ -7,6 +7,7 @@ TODO:
 - [X] Basic trait implementation
 - [X] Generic trait implementation
 - [X] Allow implementing traits for other traits
+- [X] C++11 compatible
 - [ ] Simplify trait implementation declaration 
 - [ ] Make it simple
 - [ ] Make it 100% safe
