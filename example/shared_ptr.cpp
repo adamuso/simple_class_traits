@@ -17,7 +17,7 @@ struct A
 class DebugPrint 
 {
 public:
-    typedef TraitRef<DebugPrint> ref;
+    typedef trait::ref<DebugPrint> ref;
 
     virtual void print() const = 0;
 };
@@ -36,14 +36,14 @@ void debug_print(DebugPrint::ref p)
     p->print();
 }
 
-DebugPrint::ref::shared create_a() 
+trait::shared_ptr<DebugPrint> create_a() 
 {
     return std::shared_ptr<A>(new A { .a = 2 });
 }
 
 int main()
 {
-    DebugPrint::ref::shared c = create_a();
+    trait::shared_ptr<DebugPrint> c = create_a();
 
     debug_print(*c);
 

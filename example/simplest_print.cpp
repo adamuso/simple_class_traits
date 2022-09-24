@@ -5,7 +5,7 @@
 class DebugPrint 
 {
 public:
-    typedef TraitRef<DebugPrint> ref;
+    typedef trait::ref<DebugPrint> ref;
 
     virtual void print() const = 0;
 };

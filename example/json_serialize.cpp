@@ -8,7 +8,7 @@
 class JsonSerialize
 {
 public:
-    typedef TraitRef<JsonSerialize> ref;
+    typedef trait::ref<JsonSerialize> ref;
 
     std::string key(std::string value) const
     { 
@@ -71,7 +71,7 @@ public:
 };
 
 template<typename V>
-class TraitImpl<JsonSerialize, std::vector<V>> : public JsonSerialize::ref::container<std::vector<V>>
+class trait::impl<JsonSerialize, std::vector<V>> : public JsonSerialize::ref::container<std::vector<V>>
 {
 public:
     std::string to_string() const

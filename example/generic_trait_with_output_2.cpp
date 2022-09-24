@@ -11,7 +11,7 @@ public:
     {
     public:
         typedef Add tag;
-        typedef TraitRef<outputs> ref;
+        typedef trait::ref<outputs> ref;
 
         virtual Output add(const T& other) const = 0;
     };
@@ -23,7 +23,7 @@ class AutoImplementAddition
 {
     // Real output type needs to be fetched from the concrete trait implementation
     template<typename T>
-    using OperatorPlusOutput = typename TraitImpl<Add<T>, Self>::Output;
+    using OperatorPlusOutput = typename trait::impl<Add<T>, Self>::Output;
 public:
 
     Self& self()
@@ -54,7 +54,7 @@ public:
 };
 
 template<>
-class TraitImpl<Add<int>, int> : public Add<int>::outputs<int>::ref::container<int>
+class trait::impl<Add<int>, int> : public Add<int>::outputs<int>::ref::container<int>
 {
 public:
     int add(const int& other) const override
@@ -64,7 +64,7 @@ public:
 };
 
 template<>
-class TraitImpl<Add<std::string>, std::string> : public Add<std::string>::outputs<std::string>::ref::container<std::string>
+class trait::impl<Add<std::string>, std::string> : public Add<std::string>::outputs<std::string>::ref::container<std::string>
 {
 public:
     std::string add(const std::string& other) const override
@@ -74,7 +74,7 @@ public:
 };
 
 template<>
-class TraitImpl<Add<X>, X> : public Add<X>::outputs<X>::ref::container<X>
+class trait::impl<Add<X>, X> : public Add<X>::outputs<X>::ref::container<X>
 {
     // Implements X + X -> X
 public:
@@ -87,7 +87,7 @@ public:
 };
 
 template<>
-class TraitImpl<Add<int>, X> : public Add<int>::outputs<X>::ref::container<X>
+class trait::impl<Add<int>, X> : public Add<int>::outputs<X>::ref::container<X>
 {
     // Implements X + int -> X
 public:
@@ -100,7 +100,7 @@ public:
 };
 
 template<int N>
-class TraitImpl<Add<char[N]>, X> : public Add<char[N]>::outputs<std::string>::ref::container<X>
+class trait::impl<Add<char[N]>, X> : public Add<char[N]>::outputs<std::string>::ref::container<X>
 {
     // Implements X + std::string -> std::string
 public:

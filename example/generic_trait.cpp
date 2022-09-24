@@ -6,7 +6,7 @@ template<typename T>
 class Add
 {
 public:
-    typedef TraitRef<Add> ref;
+    typedef trait::ref<Add> ref;
 
     virtual int add(const T& other) const = 0;
 };
@@ -43,7 +43,7 @@ public:
 };
 
 template<>
-class TraitImpl<Add<X>, X> : public Add<X>::ref::container<X>
+class trait::impl<Add<X>, X> : public Add<X>::ref::container<X>
 {
     // Implements X + X -> int
 public:
@@ -54,7 +54,7 @@ public:
 };
 
 template<>
-class TraitImpl<Add<int>, X> : public Add<int>::ref::container<X>
+class trait::impl<Add<int>, X> : public Add<int>::ref::container<X>
 {
     // Implements X + int -> int
 public:

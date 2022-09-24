@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 
 #include "../simple_class_traits.hpp"
 
@@ -6,7 +6,7 @@
 class Test
 {
 public:
-    typedef TraitRef<Test> ref;
+    typedef trait::ref<Test> ref;
 
     virtual int get_a() const = 0;
     virtual void set_a(int value) = 0;
@@ -46,7 +46,7 @@ public:
 
 // Implementing a trait without a macro
 template<>
-class TraitImpl<Test, Y> : public Test::ref::container<Y>
+class trait::impl<Test, Y> : public Test::ref::container<Y>
 {
 public:
     int get_a() const
@@ -77,7 +77,7 @@ int main()
     const X& cx = x;
     foo(cx);
 
-    printf("%d, %d\n", foo(x), foo(y));
+    std::cout << foo(x) << ", " << foo(y) << std::endl;
 
     return 0;
 }

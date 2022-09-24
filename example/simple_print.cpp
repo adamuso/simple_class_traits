@@ -6,7 +6,7 @@
 class SizedIntArray
 {
 public:
-    typedef TraitRef<SizedIntArray> ref;
+    typedef trait::ref<SizedIntArray> ref;
 
     virtual int size() = 0;
     virtual int item(int index) = 0;
@@ -15,7 +15,7 @@ public:
 class DebugPrint 
 {
 public:
-    typedef TraitRef<DebugPrint> ref;
+    typedef trait::ref<DebugPrint> ref;
 
     virtual void print() = 0;
 };

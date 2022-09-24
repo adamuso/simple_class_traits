@@ -9,12 +9,12 @@ TODO:
 - [X] Allow implementing traits for other traits
 - [X] C++11 compatible
 - [X] Generic trait definition
+- [X] Add a namespace for traits 
 - [ ] Simplify trait implementation declaration 
 - [ ] Make it simple
 - [ ] Make it 100% safe
 - [ ] Handle cases like `std::vector<Trait::ref>` 
 - [ ] Somehow allow using traits with `shared_ptr`
-- [ ] (maybe?) Add a namespace for traits 
 
 ## Example
 
