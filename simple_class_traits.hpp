@@ -1,14 +1,17 @@
 #pragma once
 
 #define trait_impl_expand(...) __VA_ARGS__
-#define trait_impl(T, V) template<> class trait::impl<T, V> : public T::ref::container<V>
-#define trait_impl_ext(T, D) template<typename V> class trait::impl<T, V, typename trait::impl<D, V>::type> : public T::ref::container<V>
-#define trait_impl_gen(TP, T, ...) template<trait_impl_expand TP> class trait::impl<T, __VA_ARGS__> : public T::ref::container<__VA_ARGS__>
+#define trait_impl(T, V) template<> class trait::impl<T, V> : public trait::container<T, V>
+#define trait_impl_ext(T, D) template<typename V> class trait::impl<T, V, typename trait::impl<D, V>::type> : public trait::container<T, V>
+#define trait_impl_gen(TP, T, ...) template<trait_impl_expand TP> class trait::impl<T, __VA_ARGS__> : public trait::container<T, __VA_ARGS__>
 
 namespace trait
 {
     template <typename T, typename V, typename = void>
     class impl;
+
+    template <typename T, typename V>
+    using impl_exists = typename impl<T, V>::type;
 
     class ptr_helper
     {
@@ -89,7 +92,7 @@ namespace trait
 
     };
 
-    // Trait T for TraitRef<T> should always be implemented  
+    // Trait T for trait::ref<T> should always be implemented  
     template<typename T> 
     class impl<T, ref<T>> : public container<T, T>
     {
@@ -102,7 +105,7 @@ namespace trait
     template <typename T, typename Tag = typename ptr_helper::extract_tag<T>::type>
     class ptr
     {
-        // TraitPtr is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,
+        // trait::ptr is basically a fat pointer consisting of 2 pointers: vtable pointer and data pointer,
     protected:
         struct data
         {
@@ -164,23 +167,28 @@ namespace trait
     template <typename T, typename Tag>
     class ref : protected ptr<T, Tag>
     {
-        // TraitRef tries to mimic c++ references behavior 
+        // trait::ref tries to mimic c++ references behavior 
     protected:
         ref(void* vtable, void* data)
             : ptr<T, Tag>(vtable, data)
         {
         };
 
+        ref* address_of() 
+        {
+            return this;
+        }
     public:
         template <typename V>
         using container = container<T, V>;
-        using shared = shared_ptr<T>;
-        // using ptr = ptr<T, Tag>;
 
         ref() = delete;
         ref(ref& o) = default;
         ref(ref&& o) = default;
 
+        // TODO: handle this case better, currently it works under assumption that a trait class
+        // defined by user will be only inherited by trait::impl, that is why there is a cast to
+        // void** and element [1] is extracted, in trait::impl this is always a pointer to data 
         ref(T& v)
             : ptr<T, Tag>(ptr_helper::extract_v_table(v), reinterpret_cast<void**>(&v)[1])
         {
@@ -188,13 +196,25 @@ namespace trait
 
         template <typename V, typename = impl<Tag, V>>
         ref(V& v)
-            : ptr<T, Tag>(std::addressof(v))
+            : ptr<T, Tag>(&v)
         {
         };
 
         template <typename V, typename = impl<Tag, V>>
         ref(V&& v)
-            : ptr<T, Tag>(std::addressof(v))
+            : ptr<T, Tag>(&v)
+        {
+        };
+
+        template <typename V, typename = impl<Tag, V>>
+        ref(ref<V>& v)
+            : ptr<T, Tag>(v.address_of())
+        {
+        };
+
+        template <typename V, typename = impl<Tag, V>>
+        ref(ref<V>&& v)
+            : ptr<T, Tag>(v.address_of())
         {
         };
 
@@ -209,6 +229,7 @@ namespace trait
 
         ptr<T, Tag> operator&() { return *this; }
 
-        friend shared_ptr<T>;
+        friend class shared_ptr<T>;
+        template<typename, typename> friend class ref;
     };
 }

@@ -10,6 +10,7 @@ TODO:
 - [X] C++11 compatible
 - [X] Generic trait definition
 - [X] Add a namespace for traits 
+- [X] No std library dependency on core implementation
 - [ ] Simplify trait implementation declaration 
 - [ ] Make it simple
 - [ ] Make it 100% safe

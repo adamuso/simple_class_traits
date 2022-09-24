@@ -15,7 +15,7 @@ namespace trait {
 
         data ptr;
 
-        // TraitSharedRef needs to extends shared_ptr with a vtable
+        // trait::shared_ptr needs to extends std::shared_ptr with a vtable
     public:
         shared_ptr(const shared_ptr& o)
             : ptr { o.ptr.vtable, o.ptr.data }
