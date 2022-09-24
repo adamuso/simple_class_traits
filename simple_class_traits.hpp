@@ -105,7 +105,13 @@ namespace trait
     template<typename T> 
     class impl<T, ref<T>> : public container<T, T>
     {
+        impl() = delete;
+    };
 
+    template<typename T> 
+    class impl<T, ptr<T>> : public container<T, T>
+    {
+        impl() = delete;
     };
 
     template <typename T, typename Tag>
@@ -214,6 +220,9 @@ namespace trait
         {
         };
 
+        // Separate constructor for ref<V> are needed because we cannot use & operator
+        // on refs, because it is overloaded, instead we use address_of method which
+        // return this pointer
         template <typename V, typename = impl<Tag, V>>
         ref(ref<V>& v)
             : ptr<T, Tag>(v.address_of())
