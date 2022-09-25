@@ -2,7 +2,7 @@
 
 #define trait_impl_expand(...) __VA_ARGS__
 #define trait_impl(T, V) template<> class trait::impl<T, V> : public trait::container<T, V>
-#define trait_impl_ext(T, D) template<typename V> class trait::impl<T, V, typename trait::impl<D, V>::type> : public trait::container<T, V>
+#define trait_impl_ext(T, D) template<typename V> class trait::impl<T, V, trait::impl_exists<D, V>> : public trait::container<T, V>
 #define trait_impl_gen(TP, T, ...) template<trait_impl_expand TP> class trait::impl<T, __VA_ARGS__> : public trait::container<T, __VA_ARGS__>
 
 namespace trait

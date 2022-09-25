@@ -32,7 +32,7 @@ public:
 
 // Implement trait for all SizedIntArray traits
 // template<typename V>
-// class TraitImpl<DebugPrint, V, typename TraitImpl<SizedIntArray, V>::type> : public DebugPrint::ref::container<V>
+// class trait::impl<DebugPrint, V, trait::impl_exists<SizedIntArray, V>> : public DebugPrint::ref::container<V>
 trait_impl_ext(DebugPrint, SizedIntArray)
 {
 public:
