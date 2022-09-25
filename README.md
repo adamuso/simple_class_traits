@@ -19,6 +19,114 @@ TODO:
 - [ ] Handle cases like `std::vector<Trait::ref>` 
 - [ ] Somehow allow using traits with `shared_ptr`
 
+## Usage
+
+### Defining a trait
+
+To create a new trait you need to define a class that have virtual method.
+
+```cpp
+class DebugPrint
+{
+public:
+    virtual void print() const = 0;
+};
+```
+
+```rust
+// Comparison to rust
+trait DebugPrint {
+    fn print(&self);
+}
+```
+
+Additionally you can add `ref` typedef for convinience. It can make easier accessing the trait reference type.
+
+```cpp
+class DebugPrint
+{
+public:
+    typedef trait::ref<DebugPrint> ref;
+
+    virtual void print() const = 0;
+};
+
+// Defining trait as parameter in function
+// without `ref` typedef:
+void example(trait::ref<DebugPrint> dp);
+
+// with `ref` typedef
+void example2(DebugPrint::ref dp);
+```
+
+Traits can be also defined as templates.
+
+```cpp
+template <typename T>
+class GenericTrait
+{
+public:
+    virtual void do_something(T v) const = 0;
+};
+```
+
+```rust
+// Comparison to rust
+trait GenericTrait<T> {
+    fn do_something(&self, v: T);
+}
+```
+
+Traits can provide defualt implementation.
+
+```cpp
+class SomeTrait
+{
+public:
+    virtual int get_a() const = 0;
+    virtual int get_b() const = 0;
+
+    virtual int sum() {
+        return get_a() + get_b();
+    }
+};
+```
+
+We can also simulate `Output` type for a function.
+
+```rust
+// How its done in rust
+trait Add<T> {
+    // Here Output is not a part of template
+    type Output;
+
+    fn add(&self, other: T) -> Self::Output;
+}
+```
+
+```cpp
+// Output in C++ needs to be a part of template, otherwise we cannot achieve same effect as in rust
+template <typename T, typename Output = void>
+class Add
+{
+public:
+    // Because `Output` is a part of template, it should not be used for implementation
+    // that is why a special `tag` typedef is added below, it basically says that for an
+    // trait implementation we should only look at Add<T> without `Output` type argument 
+    typedef Add<T> tag;
+
+    virtual Output add(T other) const = 0;
+};
+```
+
+### Implementing a trait
+
+WIP
+
+### Using a trait reference and pointer
+
+WIP
+
 ## Example
 
 Here are some examples with Rust equivalent. See more examples in `example` directory.
