@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include "../simple_class_traits.hpp"
 
