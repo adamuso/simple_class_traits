@@ -20,10 +20,10 @@ jobs:
 
     # Login against a Docker registry except on PR
     # https://github.com/docker/login-action
-    - name: Log into registry ${{ env.REGISTRY }}
+    - name: Log into registry ghcr.io
       uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
       with:
-        registry: ${{ env.REGISTRY }}
+        registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
