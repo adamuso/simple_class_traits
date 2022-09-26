@@ -91,7 +91,7 @@ public:
 
     Output add(const int& other) const override
     {
-        Add<int, int>::ref add_trait = self;
+        Add<int, int>::ref add_trait = self->value;
 
         return Output(add_trait->add(other));
     }
