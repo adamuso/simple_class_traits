@@ -3,6 +3,10 @@
 
 #include "../simple_class_traits.hpp"
 
+#if !defined(__PRETTY_FUNCTION__) && !defined(__GNUC__)
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
 template<typename T, typename Output = void>
 class Add
 {
@@ -55,6 +59,8 @@ class trait::impl<Add<int>, int> : public Add<int, int>::ref::container<int>
 public:
     int add(const int& other) const override
     {
+        std::cout << __PRETTY_FUNCTION__ << " (self: " << *self << ", other:" << other << ")" << std::endl;
+
         return *self + other;
     }
 };
@@ -65,6 +71,8 @@ class trait::impl<Add<std::string>, std::string> : public Add<std::string, std::
 public:
     std::string add(const std::string& other) const override
     {
+        std::cout << __PRETTY_FUNCTION__ << " (self: " << *self << ", other:" << other << ")" << std::endl;
+
         return *self + other;
     }
 };
@@ -78,6 +86,8 @@ public:
 
     X add(const X& other) const override
     {
+        std::cout << __PRETTY_FUNCTION__ << " (self: " << self->value << ", other:" << other.value << ")" << std::endl;
+
         return Add<int, Output>::ref(self->value)->add(other.value);
     }
 };
@@ -91,6 +101,8 @@ public:
 
     Output add(const int& other) const override
     {
+        std::cout << __PRETTY_FUNCTION__ << " (self: " << self->value << ", other:" << other << ")" << std::endl;
+
         Add<int, int>::ref add_trait = self->value;
 
         return Output(add_trait->add(other));
@@ -106,6 +118,8 @@ public:
 
     Output add(const char(&other)[N]) const override
     {
+        std::cout << __PRETTY_FUNCTION__ << " (self: " << this->self->value << ", other:" << other << ")" << std::endl;
+
         return Add<std::string, Output>::ref(std::to_string(this->self->value))->add(other);
     }
 };
