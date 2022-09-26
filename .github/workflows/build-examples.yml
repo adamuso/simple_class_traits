@@ -18,7 +18,7 @@ jobs:
     - name: build
       env:
         CXX: clang
-      run: cd example && build_all.sh
+      run: cd example && ./build_all.sh
 
   build-clang:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
     - name: build
       env:
         CXX: clang
-      run: cd example && build_all.sh
+      run: cd example && ./build_all.sh
 
   build-msvc:
     runs-on: windows-latest
@@ -50,4 +50,4 @@ jobs:
         CXX: clang
       run: | 
         cd example 
-        cl simple_print.cpp
+        build_all.bat

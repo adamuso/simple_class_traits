@@ -1,0 +1,11 @@
+cl /EHsc /std:c11 /out:a.exe generic_trait_with_output_2.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe generic_trait_with_output.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe generic_trait.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe json_serialize.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe macro.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe shared_ptr.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe simple_print_generic.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe simple_print.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe simplest_print.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe simple_print_generic.cpp && a.exe
+cl /EHsc /std:c11 /out:a.exe trait_in_vector.cpp && a.exe
