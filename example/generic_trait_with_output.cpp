@@ -113,6 +113,9 @@ int main()
     X a { 4 };
     X b { 2 };
     X c = a + b;
+
+    std::cout << "c.value: " << c.value << std::endl;
+
     X d = c + 10;
     std::string output = d + " is a result";
 
