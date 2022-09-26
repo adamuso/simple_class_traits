@@ -88,7 +88,7 @@ public:
     {
         std::cout << __PRETTY_FUNCTION__ << " (self: " << self->value << ", other:" << other.value << ")" << std::endl;
 
-        return Add<int, Output>::ref(self->value)->add(other.value);
+        return Add<int, int>::ref(self->value)->add(other.value);
     }
 };
 
@@ -103,9 +103,7 @@ public:
     {
         std::cout << __PRETTY_FUNCTION__ << " (self: " << self->value << ", other:" << other << ")" << std::endl;
 
-        Add<int, int>::ref add_trait = self->value;
-
-        return Output(add_trait->add(other));
+        return Output(Add<int, int>::ref(self->value)->add(other));
     }
 };
 
