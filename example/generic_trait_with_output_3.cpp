@@ -3,16 +3,16 @@
 
 #include "../simple_class_traits.hpp"
 
-#if !defined(__PRETTY_FUNCTION__) && !defined(__GNUC__)
-#define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif
-
 template<typename T, typename Output = void>
 class Add
 {
 public:
     typedef Add<T, void> tag;
     typedef trait::ref<Add> ref;
+    using output = Output;
+
+    template <typename V>
+    using to = Add<T, typename trait::impl<Add<T>, V>::Output>;
 
     virtual Output add(const T& other) const = 0;
 };
@@ -21,10 +21,6 @@ public:
 template <typename Self>
 class AutoImplementAddition
 {
-    // Real output type needs to be fetched from the concrete trait implementation
-    template<typename T>
-    using OperatorPlusOutput = typename trait::impl<Add<T>, Self>::Output;
-
 public:
     Self& self()
     {
@@ -33,9 +29,9 @@ public:
 
     // The most generic implementation of addition that is possible
     template<typename T>
-    OperatorPlusOutput<T> operator+(const T& other)
+    typename Add<T>::template to<Self>::output operator+(const T& other)
     {
-        return typename Add<T, OperatorPlusOutput<T>>::ref(self())->add(other);
+        return typename Add<T>::template to<Self>::ref(self())->add(other);
     }
 };
 
@@ -57,6 +53,8 @@ template<>
 class trait::impl<Add<int>, int> : public Add<int, int>::ref::container<int>
 {
 public:
+    typedef int Output;
+
     int add(const int& other) const override
     {
         return *self + other;
@@ -67,6 +65,8 @@ template<>
 class trait::impl<Add<std::string>, std::string> : public Add<std::string, std::string>::ref::container<std::string>
 {
 public:
+    typedef std::string Output;
+
     std::string add(const std::string& other) const override
     {
         return *self + other;
@@ -82,7 +82,7 @@ public:
 
     X add(const X& other) const override
     {
-        return Add<int, int>::ref(self->value)->add(other.value);
+        return Add<int>::to<int>::ref(self->value)->add(other.value);
     }
 };
 
@@ -95,7 +95,7 @@ public:
 
     Output add(const int& other) const override
     {
-        return Output(Add<int, int>::ref(self->value)->add(other));
+        return Output(Add<int>::to<int>::ref(self->value)->add(other));
     }
 };
 
@@ -108,7 +108,7 @@ public:
 
     Output add(const char(&other)[N]) const override
     {
-        return Add<std::string, Output>::ref(std::to_string(this->self->value))->add(other);
+        return Add<std::string>::to<std::string>::ref(std::to_string(this->self->value))->add(other);
     }
 };
 
@@ -117,9 +117,6 @@ int main()
     X a { 4 };
     X b { 2 };
     X c = a + b;
-
-    std::cout << "c.value: " << c.value << std::endl;
-
     X d = c + 10;
     std::string output = d + " is a result";
 

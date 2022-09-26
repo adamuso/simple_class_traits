@@ -83,7 +83,7 @@ public:
 
     X add(const X& other) const override
     {
-        return Add<int>::outputs<Output>::ref(self->value)->add(other.value);
+        return Add<int>::outputs<int>::ref(self->value)->add(other.value);
     }
 };
 
