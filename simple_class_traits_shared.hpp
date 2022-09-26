@@ -33,7 +33,7 @@ namespace trait {
         template <typename V, typename = impl<T, V>>
         shared_ptr(const std::shared_ptr<V>& v)
         {
-            static_assert(sizeof(shared_ptr) - sizeof(void*) == sizeof(impl<T, V>));
+            static_assert(sizeof(shared_ptr) - sizeof(void*) == sizeof(impl<T, V>), "Invalid shared_ptr size");
 
             ptr.vtable = ptr_helper::extract_v_table<impl<T, V>>();
             ptr.data = v;
@@ -42,7 +42,7 @@ namespace trait {
         template <typename V, typename = impl<T, V>>
         shared_ptr(std::shared_ptr<V>&& v)
         {
-            static_assert(sizeof(shared_ptr) - sizeof(void*) == sizeof(impl<T, V>));
+            static_assert(sizeof(shared_ptr) - sizeof(void*) == sizeof(impl<T, V>), "Invalid shared_ptr size");
 
             ptr.vtable = ptr_helper::extract_v_table<impl<T, V>>();
             ptr.data = v;
