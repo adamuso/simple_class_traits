@@ -13,6 +13,9 @@ namespace trait
     template <typename T, typename V>
     using impl_exists = typename impl<T, V>::type;
 
+    template <typename V, typename T>
+    using has_trait = typename impl<T, V>::type;
+
     class ptr_helper
     {
     public:
@@ -132,7 +135,10 @@ namespace trait
         {
         };
     public:
-        ptr() = delete;
+        ptr()
+            : d({ nullptr, nullptr }) {
+
+        }
         ptr(ptr& o) = default;
         ptr(ptr&& o)
             : d(o.d)

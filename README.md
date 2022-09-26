@@ -121,7 +121,118 @@ public:
 
 ### Implementing a trait
 
-WIP
+Creating a trait implmentation in C++ esessntially means that you need to create a specialization for
+`trait::impl` template and provide body for virtual methods. To make this process easier there are
+few optional `#define` which can make the code more readable. If you don't like using defines then
+all traits can be implemented in standard C++ way.
+
+```cpp
+// Implementation using define is very simple
+trait_impl(DebugPrint, int)
+{
+public:
+    void print() const 
+    {
+        std::cout << *self;
+    }
+};
+```
+
+```cpp
+// This is how it looks without macro
+template<>
+class trait::impl<DebugPrint, int> : public trait::container<DebugPrint, int>
+{
+public:
+    void print() const 
+    {
+        std::cout << *self;
+    }
+};
+```
+
+```rust
+// Comparison to rust
+impl DebugPrint for i32 {
+    fn print(&self) {
+        print!("{}", self);
+    }
+}
+```
+
+A trait implementation can aslo be generic.
+
+```cpp
+// Using a macro
+trait_impl_gen((typename T), GenericTrait<T>, T)
+{
+public:
+    void do_something(T v) const 
+    {
+       // ...
+    }
+};
+```
+
+```cpp
+// Without a macro
+template<typename T>
+class impl::trait<GenericTrait<T>, T> : public trait::container<GenericTrait<T>, T>
+{
+public:
+    void do_something(T v) const 
+    {
+       // ...
+    }
+};
+```
+
+```rust
+// Comparison to rust
+impl<T> GenericTrait<T> for T {
+    fn do_something(&self, v: T) {
+        // ...
+    }
+}
+```
+
+You can implement a trait for another trait.
+
+
+```cpp
+// Using a macro
+trait_impl_ext(DebugPrint, SomeTrait)
+{
+public:
+    void print() const 
+    {
+        // this->self is SomeTrait*
+    }
+};
+```
+
+```cpp
+// Without a macro
+template<typename V>
+class impl::trait<DebugPrint, V, trait::has_trait<V, SomeTrait>> : public trait::container<DebugPrint, V>
+{
+public:
+    void print() const 
+    {
+        // this->self is SomeTrait*
+    }
+};
+```
+
+```rust
+// Comparison to rust
+impl<V> DebugPrint for V 
+    where V : SomeTrait {
+    fn print(&self) {
+        // ...
+    }
+}
+```
 
 ### Using a trait reference and pointer
 
