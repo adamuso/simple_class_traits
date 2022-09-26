@@ -9,9 +9,9 @@ struct A
     int a;
 
     A(int a)
-        : A(a)
+        : a(a)
     {
-        
+
     }
 
     ~A()
