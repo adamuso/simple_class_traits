@@ -242,6 +242,8 @@ free memory, it just holds in the inside a pointer to an object and correct trai
 dereferenced. All references to objects implementating trait `T` can be assigned to `trait::ref<T>`. Also `trait::ref<T>` is implicitly convertible to `T&`
 and operator `&` is overloaded so it returns `trait::ptr<T>`. Access to methods on both is done using `->` operator (I would like `.` operator for `trait::ref` but unfortunately this is not possible).
 
+`trait::ref` corresponds to `dyn Trait` syntax in Rust. 
+
 ```cpp
 void do_print(const trait::ref<DebugPrint> dp)
 {
@@ -251,7 +253,26 @@ void do_print(const trait::ref<DebugPrint> dp)
 
 ```rust
 // Comparison to rust
-fn do_print(dp: impl DebugPointer)
+fn do_print(dp: &dyn DebugPrint)
+{
+    dp.print();
+}
+```
+
+To achieve `impl Trait` we can use a template and `trait::trait_ref` type. 
+
+```cpp
+template<typename V>
+void do_print(const V& v)
+{
+    trait::trait_ref<DebugPrint, V> dp = v;
+    dp->print();
+}
+```
+
+```rust
+// Comparison to rust
+fn do_print(dp: impl DebugPrint)
 {
     dp.print();
 }
