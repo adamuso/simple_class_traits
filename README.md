@@ -118,6 +118,7 @@ public:
     virtual Output add(T other) const = 0;
 };
 ```
+Note: I think this implementation can be improved, I would like to pass as Self type to the trait so you can write `Self::Output` like in rust
 
 ### Implementing a trait
 
@@ -236,7 +237,25 @@ impl<V> DebugPrint for V
 
 ### Using a trait reference and pointer
 
-WIP
+To invoke trait methods you can use two classes: `trait::ptr` and `trait::ref`. `trait::ptr` should be treated as C++ pointer, it won't automatically
+free memory, it just holds in the inside a pointer to an object and correct trait. All object pointers implementing trait `T` can be assigned to `trait::ptr<T>`. `trait::ref` should be used as C++ reference, it cannot hold `nullptr` value, it can be assigned only once and it cannot be
+dereferenced. All references to objects implementating trait `T` can be assigned to `trait::ref<T>`. Also `trait::ref<T>` is implicitly convertible to `T&`
+and operator `&` is overloaded so it returns `trait::ptr<T>`. Access to methods on both is done using `->` operator (I would like `.` operator for `trait::ref` but unfortunately this is not possible).
+
+```cpp
+void do_print(const trait::ref<DebugPrint> dp)
+{
+    dp->print();
+}
+```
+
+```rust
+// Comparison to rust
+fn do_print(dp: impl DebugPointer)
+{
+    dp.print();
+}
+```
 
 ## Example
 
