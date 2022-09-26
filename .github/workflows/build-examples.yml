@@ -1,0 +1,53 @@
+name: Build examples
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-gcc:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      env:
+        CXX: clang
+      run: cd example && build_all.sh
+
+  build-clang:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      env:
+        CXX: clang
+      run: cd example && build_all.sh
+
+  build-msvc:
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - name: Enable Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.11.0
+
+    - uses: actions/checkout@v3
+
+    - name: build
+      env:
+        CXX: clang
+      run: | 
+        cd example 
+        cl simple_print.cpp
