@@ -35,7 +35,7 @@ public:
     template<typename T>
     OperatorPlusOutput<T> operator+(const T& other)
     {
-        return typename Add<T>::outputs<OperatorPlusOutput<T>>::ref(self())->add(other);
+        return typename Add<T>::template outputs<OperatorPlusOutput<T>>::ref(self())->add(other);
     }
 };
 
@@ -100,7 +100,7 @@ public:
 };
 
 template<int N>
-class trait::impl<Add<char[N]>, X> : public Add<char[N]>::outputs<std::string>::ref::container<X>
+class trait::impl<Add<char[N]>, X> : public Add<char[N]>::template outputs<std::string>::ref::template container<X>
 {
     // Implements X + std::string -> std::string
 public:

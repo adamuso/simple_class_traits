@@ -95,7 +95,7 @@ public:
 };
 
 template<int N>
-class trait::impl<Add<char[N]>, X> : public Add<char[N], std::string>::ref::container<X>
+class trait::impl<Add<char[N]>, X> : public Add<char[N], std::string>::ref::template container<X>
 {
     // Implements X + std::string -> std::string
 public:

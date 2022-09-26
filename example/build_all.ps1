@@ -1,11 +1,13 @@
-cl /EHsc /std:c11 /out:a.exe generic_trait_with_output_2.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe generic_trait_with_output.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe generic_trait.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe json_serialize.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe macro.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe shared_ptr.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe simple_print_generic.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe simple_print.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe simplest_print.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe simple_print_generic.cpp && a.exe
-cl /EHsc /std:c11 /out:a.exe trait_in_vector.cpp && a.exe
+$ErrorActionPreference = "Stop"
+
+cl /EHsc /std:c11 generic_trait_with_output_2.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 generic_trait_with_output.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 generic_trait.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 json_serialize.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 macro.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 shared_ptr.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 simple_print_generic.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 simple_print.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 simplest_print.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 simple_print_generic.cpp /link /out:a.exe && .\a.exe
+cl /EHsc /std:c11 trait_in_vector.cpp /link /out:a.exe && .\a.exe

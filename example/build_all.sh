@@ -1,3 +1,5 @@
+set -e
+
 CXX="${CXX:-g++}" 
 CXXFLAGS="${CXXFLAGS:--std=c++11}"
 
