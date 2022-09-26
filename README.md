@@ -266,7 +266,7 @@ template<typename V>
 void do_print(const V& v)
 {
     trait::trait_ref<DebugPrint, V> dp = v;
-    dp->print();
+    dp.print();
 }
 ```
 
