@@ -259,13 +259,13 @@ fn do_print(dp: &dyn DebugPrint)
 }
 ```
 
-To achieve `impl Trait` we can use a template and `trait::trait_ref` type. 
+To achieve `impl Trait` we can use a template and `trait::impl_ref` type. 
 
 ```cpp
 template<typename V>
 void do_print(const V& v)
 {
-    trait::trait_ref<DebugPrint, V> dp = v;
+    trait::impl_ref<DebugPrint, V> dp = v;
     dp.print();
 }
 ```
