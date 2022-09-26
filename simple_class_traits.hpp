@@ -254,4 +254,19 @@ namespace trait
         template<typename, typename> friend class ref;
         template<typename, typename> friend class ptr;
     };
+
+    template<typename T, typename V>
+    class impl_ref : public impl<T, V>
+    {
+    public:
+        impl_ref(const V& v)
+        {
+            this->self = const_cast<V*>(&v);
+        }
+
+        impl_ref(V&& v)
+        {
+            this->self = const_cast<V*>(&v);
+        }
+    };
 }
