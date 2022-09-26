@@ -8,6 +8,12 @@ struct A
 {
     int a;
 
+    A(int a)
+        : A(a)
+    {
+        
+    }
+
     ~A()
     {
         std::cout << "A: " << a << " DELETE" << std::endl;
@@ -38,7 +44,7 @@ void debug_print(DebugPrint::ref p)
 
 trait::shared_ptr<DebugPrint> create_a() 
 {
-    return std::shared_ptr<A>(new A { .a = 2 });
+    return std::shared_ptr<A>(new A(2));
 }
 
 int main()
