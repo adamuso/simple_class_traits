@@ -12,7 +12,7 @@ namespace trait {
     public:
         using ref = trait::ref<Into>;
 
-        Output into() const;
+        virtual Output into() const = 0;
     };
 
     template <typename V>
@@ -104,19 +104,27 @@ namespace trait {
         return impl_ref<Into<Output>, V>(v).into();
     }
 
+    template <typename V>
     struct IntoTag {};
 
-    IntoTag into() 
+    template <typename V = void>
+    IntoTag<V> into() 
     {
-        return IntoTag();
+        return IntoTag<V>();
     };
 
     // we cannot overload -> or . so this is the best we can do
     // remember this is just an example, I think that this is not 
     // a right way to do it but is it certainly possible.
     template <typename V>
-    static IntoConverter<V> operator->*(const V& v, IntoTag)
+    static IntoConverter<V> operator->*(const V& v, IntoTag<void>)
     {
         return v;
+    }
+
+    template <typename T, typename V>
+    static trait::impl_ref<T, V> operator->*(const V& v, IntoTag<T>)
+    {
+        return trait::impl_ref<T, V>(v);
     }
 }

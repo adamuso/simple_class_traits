@@ -7,7 +7,7 @@ template<>
 class trait::impl<trait::Into<std::string>, int> : public trait::container<trait::Into<std::string>, int>
 {
 public:
-    std::string into()
+    virtual std::string into() const override
     {
         return std::to_string(*self);
     }
@@ -24,7 +24,7 @@ public:
 trait_impl(trait::Into<std::string>, Something)
 {
 public:
-    std::string into()
+    virtual std::string into() const override
     {
         using trait::into;
 
@@ -56,6 +56,12 @@ int main()
     Something s;
 
     print(s->*into());
+
+    // Fast access to impl_ref:
+    // trait::impl_ref<trait::Into<std::string>, int> into_string_value = b;
+    auto into_string_value = b->*into<trait::Into<std::string>>();
+
+    print(into_string_value.into());
 
     return 0;
 }
