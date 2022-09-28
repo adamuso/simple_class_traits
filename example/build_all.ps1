@@ -1,8 +1,5 @@
 $ErrorActionPreference = "Stop"
 
-cl /EHsc /std:c11 generic_trait_with_output_2.cpp /link /out:a.exe && .\a.exe
-if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
-
 cl /EHsc /std:c11 generic_trait_with_output.cpp /link /out:a.exe && .\a.exe
 if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
 

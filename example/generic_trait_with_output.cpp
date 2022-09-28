@@ -3,16 +3,15 @@
 
 #include "../simple_class_traits.hpp"
 
-#if !defined(__PRETTY_FUNCTION__) && !defined(__GNUC__)
-#define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif
-
 template<typename T, typename Output = void>
 class Add
 {
 public:
     typedef Add<T, void> tag;
-    typedef trait::ref<Add> ref;
+
+    // ref must be specified with all template arguments
+    template <typename _Output>
+    using ref = trait::ref<Add<T, _Output>>;
 
     virtual Output add(const T& other) const = 0;
 };
@@ -35,7 +34,7 @@ public:
     template<typename T>
     OperatorPlusOutput<T> operator+(const T& other)
     {
-        return typename Add<T, OperatorPlusOutput<T>>::ref(self())->add(other);
+        return typename Add<T>::template ref<OperatorPlusOutput<T>>(self())->add(other);
     }
 };
 
@@ -54,7 +53,7 @@ public:
 };
 
 template<>
-class trait::impl<Add<int>, int> : public Add<int, int>::ref::container<int>
+class trait::impl<Add<int>, int> : public Add<int>::ref<int>::container<int>
 {
 public:
     int add(const int& other) const override
@@ -64,7 +63,7 @@ public:
 };
 
 template<>
-class trait::impl<Add<std::string>, std::string> : public Add<std::string, std::string>::ref::container<std::string>
+class trait::impl<Add<std::string>, std::string> : public Add<std::string>::ref<std::string>::container<std::string>
 {
 public:
     std::string add(const std::string& other) const override
@@ -74,7 +73,7 @@ public:
 };
 
 template<>
-class trait::impl<Add<X>, X> : public Add<X, X>::ref::container<X>
+class trait::impl<Add<X>, X> : public Add<X>::ref<X>::container<X>
 {
     // Implements X + X -> X
 public:
@@ -82,12 +81,13 @@ public:
 
     X add(const X& other) const override
     {
-        return Add<int, int>::ref(self->value)->add(other.value);
+        // static polymorphism
+        return X(trait::impl_ref<Add<int>, int>(self->value).add(other.value));
     }
 };
 
 template<>
-class trait::impl<Add<int>, X> : public Add<int, X>::ref::container<X>
+class trait::impl<Add<int>, X> : public Add<int>::ref<X>::container<X>
 {
     // Implements X + int -> X
 public:
@@ -95,12 +95,13 @@ public:
 
     Output add(const int& other) const override
     {
-        return Output(Add<int, int>::ref(self->value)->add(other));
+        // dynamic polymorphism
+        return Output(Add<int>::ref<int>(self->value)->add(other));
     }
 };
 
 template<int N>
-class trait::impl<Add<char[N]>, X> : public Add<char[N], std::string>::ref::template container<X>
+class trait::impl<Add<char[N]>, X> : public Add<char[N]>::template ref<std::string>::template container<X>
 {
     // Implements X + std::string -> std::string
 public:
@@ -108,7 +109,7 @@ public:
 
     Output add(const char(&other)[N]) const override
     {
-        return Add<std::string, Output>::ref(std::to_string(this->self->value))->add(other);
+        return Add<std::string>::ref<Output>(std::to_string(this->self->value))->add(other);
     }
 };
 

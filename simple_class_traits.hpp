@@ -32,24 +32,45 @@ namespace trait
         };
 
         template<class T, class R = void>  
-        class extract_tag_enable 
+        struct extract_tag_enable 
         { 
-        public:
             typedef R type; 
         };
 
         template <typename T, typename = void>
-        class extract_tag
+        struct extract_tag
         {
-        public:
             typedef T type;
         };
 
         template <typename T>
-        class extract_tag<T, typename extract_tag_enable<typename T::tag>::type>
+        struct extract_tag<T, typename extract_tag_enable<typename T::tag>::type>
         {
-        public:
             typedef typename T::tag type;
+        };
+        
+        template <typename Base>
+        static void is_base_of_helper(...);
+
+        template <typename Base>
+        static Base* is_base_of_helper(Base*);
+        
+        template <typename Base, typename Derived, typename = decltype(is_base_of_helper<Base>(static_cast<Derived*>(static_cast<void*>(0))))>
+        struct is_base_of
+        {
+            constexpr static bool value = false;
+        };
+
+        template <typename T>
+        struct is_base_of<T, T, T*>
+        {
+            constexpr static bool value = false;
+        };
+
+        template <typename Base, typename Derived>
+        struct is_base_of<Base, Derived, Base*>
+        {
+            constexpr static bool value = true;
         };
 
         template <typename V>
@@ -150,6 +171,7 @@ namespace trait
         template <typename V, typename = impl<Tag, V>>
         ptr(V* v)
         {
+            static_assert(ptr_helper::is_base_of<T, impl<Tag, V>>::value, "trait::impl<T, V> is not a base of T");
             static_assert(ptr_helper::sizeof_impl<impl<Tag, V>>::value >= 0, "trait::impl<T, V> is not defined. Please create an implmentation for this trait.");
             static_assert(sizeof(ptr) == ptr_helper::sizeof_impl<impl<Tag, V>>::value, "trait::impl cannot have additional fields.");
             static_assert(sizeof(T) == sizeof(void*), "Trait cannot have additional fields.");

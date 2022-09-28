@@ -13,6 +13,7 @@ TODO:
 - [X] Generic trait definition
 - [X] Add a namespace for traits 
 - [X] No std library dependency on core implementation
+- [X] Have a way of handling associated types (although its a bit trickier than in rust)
 - [ ] Simplify trait implementation declaration 
 - [ ] Make it simple
 - [ ] Make it 100% safe
@@ -114,6 +115,12 @@ public:
     // that is why a special `tag` typedef is added below, it basically says that for an
     // trait implementation we should only look at Add<T> without `Output` type argument 
     typedef Add<T> tag;
+
+    // also ref must be specified with all template arguments, it is similiar to rust 
+    // that if `SomeTrait` has associated type Output then `dyn SomeTrait` must specify
+    // all associated types, example: `dyn SomeTrait<Output = i32>`
+    template <typename _Output>
+    using ref = trait::ref<Add<T, _Output>>;
 
     virtual Output add(T other) const = 0;
 };
