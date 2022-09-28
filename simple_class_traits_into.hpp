@@ -3,6 +3,7 @@
 #include "simple_class_traits.hpp"
 
 // This is an example implementation of Into trait
+// See example/use_of_into.cpp for usage
 
 namespace trait {
     template <typename Output>
