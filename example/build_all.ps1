@@ -29,3 +29,6 @@ if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
 
 cl /EHsc /std:c11 trait_in_vector.cpp /link /out:a.exe && .\a.exe
 if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }
+
+cl /EHsc /std:c11 use_of_into.cpp /link /out:a.exe && .\a.exe
+if ($LASTEXITCODE -ne 0) { throw "Exit code is $LASTEXITCODE" }

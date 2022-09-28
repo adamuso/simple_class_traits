@@ -13,3 +13,4 @@ $CXX $CXXFLAGS simple_print.cpp; ./a.out
 $CXX $CXXFLAGS simplest_print.cpp; ./a.out
 $CXX $CXXFLAGS simple_print_generic.cpp; ./a.out
 $CXX $CXXFLAGS trait_in_vector.cpp; ./a.out
+$CXX $CXXFLAGS use_of_into.cpp; ./a.out
