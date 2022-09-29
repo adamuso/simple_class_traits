@@ -168,6 +168,12 @@ namespace trait
             o.d.data = nullptr;
         }
 
+        ptr(decltype(nullptr) v)
+        {
+            d.vtable = nullptr;
+            d.data = nullptr;
+        }
+
         template <typename V, typename = impl<Tag, V>>
         ptr(V* v)
         {
@@ -187,6 +193,13 @@ namespace trait
             
         }
 
+        ptr& operator=(decltype(nullptr) v)
+        {
+            d.data = nullptr;
+            d.vtable = nullptr;
+
+            return *this;
+        }
         ptr& operator=(const ptr&) = default;
         ptr& operator=(ptr&& o)
         {
@@ -197,6 +210,27 @@ namespace trait
 
             return *this;
         };
+
+        bool operator==(const ptr& other)
+        {
+            return d.vtable == other.d.vtable && d.data == other.d.data;
+        }
+
+        bool operator!=(const ptr& other)
+        {
+            return !(*this == other);
+        }
+
+        // Allow for checking if a ptr is initialized to nullptr
+        bool operator==(const void* other)
+        {
+            return d.data == other;
+        }
+
+        bool operator!=(const void* other)
+        {
+            return !(*this == other);
+        }
 
         T* operator->() { return reinterpret_cast<T*>(&d); }
         const T* operator->() const { return reinterpret_cast<const T*>(&d); }
